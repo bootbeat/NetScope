@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#11151c">
+  <meta name="description" content="A browser-based network information and diagnostics dashboard.">
+  <title>NetScope Web — Browser Network Information &amp; Diagnostics</title>
+  <link rel="icon" type="image/svg+xml" href="assets/netscope.svg">
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <a class="brand" href="#overview" aria-label="NetScope Web home">
+        <img src="assets/netscope.svg" alt="" width="38" height="38">
+        <span><strong>NetScope</strong><small>WEB DIAGNOSTICS</small></span>
+      </a>
+      <nav aria-label="Main navigation">
+        <a href="#overview">Overview</a>
+        <a href="#tools">Tools</a>
+        <a href="#privacy">Privacy</a>
+      </nav>
+      <div class="header-actions">
+        <span id="update-status" class="update-status" role="status" aria-live="polite">Ready</span>
+        <button id="refresh-button" class="button button-primary" type="button"><span aria-hidden="true">⟳</span> Refresh</button>
+      </div>
+    </header>
+
+    <main id="overview">
+      <section class="hero" aria-labelledby="page-title">
+        <div>
+          <p class="eyebrow">YOUR CONNECTION AT A GLANCE</p>
+          <h1 id="page-title">NetScope</h1>
+          <p class="hero-subtitle">Browser Network Information &amp; Diagnostics</p>
+          <p class="hero-copy">A quick, private-by-design view of the network details your browser can access.</p>
+        </div>
+        <div class="hero-actions">
+          <button id="copy-button" class="button button-secondary" type="button"><span aria-hidden="true">▣</span> Copy All</button>
+        </div>
+      </section>
+
+      <section class="dashboard-grid" aria-label="Network dashboard">
+        <article class="card connection-card">
+          <div class="card-heading"><span class="icon-badge" aria-hidden="true">⌁</span><div><p class="eyebrow">LIVE OVERVIEW</p><h2>Connection</h2></div></div>
+          <div class="connection-status">
+            <span id="connection-dot" class="status-dot checking"></span>
+            <div><span class="field-label">Internet</span><strong id="connection-value" class="status-value">Checking...</strong></div>
+          </div>
+          <div class="field-list">
+            <div class="field-row"><span class="field-label">HTTP latency</span><span id="latency-value" class="field-value">Checking...</span></div>
+            <div class="field-row"><span class="field-label">Connection type</span><span id="connection-type" class="field-value">Checking...</span></div>
+          </div>
+          <p class="card-note">Latency is an approximate HTTPS round trip, not an ICMP ping.</p>
+        </article>
+
+        <article class="card">
+          <div class="card-heading"><span class="icon-badge" aria-hidden="true">▤</span><div><p class="eyebrow">AVAILABLE IN THIS BROWSER</p><h2>Browser &amp; Device</h2></div></div>
+          <div class="field-list">
+            <div class="field-row"><span class="field-label">Browser</span><span id="browser-value" class="field-value">—</span></div>
+            <div class="field-row"><span class="field-label">Platform</span><span id="platform-value" class="field-value">—</span></div>
+            <div class="field-row"><span class="field-label">Screen resolution</span><span id="screen-value" class="field-value">—</span></div>
+            <div class="field-row"><span class="field-label">Language</span><span id="language-value" class="field-value">—</span></div>
+            <div class="field-row"><span class="field-label">Time zone</span><span id="timezone-value" class="field-value">—</span></div>
+          </div>
+          <p class="card-note">These values stay in this page and are not saved.</p>
+        </article>
+
+        <article class="card public-card">
+          <div class="card-heading"><span class="icon-badge" aria-hidden="true">◎</span><div><p class="eyebrow">PUBLIC NETWORK</p><h2>Public IP</h2></div></div>
+          <p id="public-ip-value" class="ip-address" aria-live="polite">Checking...</p>
+          <p id="public-ip-note" class="card-note">Retrieved over HTTPS from the public-IP service.</p>
+        </article>
+
+        <article class="card">
+          <div class="card-heading"><span class="icon-badge" aria-hidden="true">⌖</span><div><p class="eyebrow">APPROXIMATE PUBLIC-IP INFORMATION</p><h2>IP Information</h2></div></div>
+          <p class="section-intro">The selected public-IP service returns an address only. Location and organization are not requested from another service.</p>
+          <div class="field-list">
+            <div class="field-row"><span class="field-label">Country</span><span class="field-value">Not available</span></div>
+            <div class="field-row"><span class="field-label">Region</span><span class="field-value">Not available</span></div>
+            <div class="field-row"><span class="field-label">City</span><span class="field-value">Not available</span></div>
+            <div class="field-row"><span class="field-label">Organization</span><span class="field-value">Not available</span></div>
+          </div>
+        </article>
+
+        <article id="tools" class="card dns-card">
+          <div class="card-heading"><span class="icon-badge" aria-hidden="true">⌕</span><div><p class="eyebrow">NETWORK TOOL</p><h2>DNS Lookup</h2></div></div>
+          <p class="section-intro">Look up public A and AAAA records using DNS-over-HTTPS. This does not show your configured local DNS server.</p>
+          <form id="dns-form" class="dns-form" novalidate>
+            <label for="domain-input">Enter domain</label>
+            <div class="input-row">
+              <input id="domain-input" name="domain" type="text" inputmode="url" autocomplete="off" spellcheck="false" maxlength="253" placeholder="example.com" aria-describedby="dns-message">
+              <button id="dns-button" class="button button-primary" type="submit">Lookup</button>
+            </div>
+            <p id="dns-message" class="form-message" role="status" aria-live="polite">Enter a domain to start a lookup.</p>
+          </form>
+          <div class="field-list dns-results" aria-live="polite">
+            <div class="field-row"><span class="field-label">Domain</span><span id="dns-domain" class="field-value">Not looked up</span></div>
+            <div class="field-row"><span class="field-label">IPv4</span><span id="dns-ipv4" class="field-value">Not looked up</span></div>
+            <div class="field-row"><span class="field-label">IPv6</span><span id="dns-ipv6" class="field-value">Not looked up</span></div>
+          </div>
+        </article>
+
+        <article id="privacy" class="card privacy-card">
+          <div class="card-heading"><span class="icon-badge" aria-hidden="true">◇</span><div><p class="eyebrow">NO ACCOUNT REQUIRED</p><h2>Privacy</h2></div></div>
+          <ul class="privacy-list">
+            <li>NetScope Web runs in your browser; the static app has no backend and does not store your information.</li>
+            <li>The public-IP request goes to <a href="https://api.ipify.org/?format=json" target="_blank" rel="noopener noreferrer">ipify</a>. The service receives the request and can see its source IP; NetScope does not make claims about the service's logging.</li>
+            <li>DNS Lookup sends the domain you enter to <a href="https://dns.google/resolve" target="_blank" rel="noopener noreferrer">Google Public DNS</a> over HTTPS. Its handling is governed by Google's service policies.</li>
+            <li>Browser restrictions prevent access to your MAC address, gateway, configured DNS servers, DHCP settings, and full adapter details.</li>
+            <li>No geolocation permission, precise location, analytics, or LAN scan is used.</li>
+          </ul>
+        </article>
+      </section>
+
+      <footer class="page-footer">
+        <span>NetScope Web · Browser-only diagnostics</span>
+        <span id="copy-status" role="status" aria-live="polite"></span>
+      </footer>
+    </main>
+  </div>
+</body>
+</html>
