@@ -70,6 +70,8 @@ h2 { margin: 0; font-size: 17px; letter-spacing: -.2px; }
 .public-card .card-heading { margin-bottom: 12px; }
 .ip-address { margin: 0; color: #f5f8ff; font-size: clamp(22px, 3vw, 30px); line-height: 1.25; font-weight: 650; letter-spacing: .35px; overflow-wrap: anywhere; }
 .public-card .card-note { margin-top: 9px; }
+.location-card .field-value { max-width: 72%; }
+.location-card .card-note { margin-top: 12px; }
 .dns-card { grid-column: 1 / -1; }
 .dns-card .card-heading { margin-bottom: 16px; }
 .dns-form { margin: 0 0 16px; }

@@ -1,6 +1,6 @@
 "use strict";
 
-const PUBLIC_IP_URL = "https://api.ipify.org/?format=json";
+const IP_INFO_URL = "https://ipapi.co/json/";
 const DNS_URL = "https://dns.google/resolve";
 const REQUEST_TIMEOUT_MS = 6500;
 
@@ -20,6 +20,12 @@ const elements = {
   timezone: document.querySelector("#timezone-value"),
   publicIp: document.querySelector("#public-ip-value"),
   publicIpNote: document.querySelector("#public-ip-note"),
+  locationCountry: document.querySelector("#location-country"),
+  locationRegion: document.querySelector("#location-region"),
+  locationCity: document.querySelector("#location-city"),
+  locationOrg: document.querySelector("#location-org"),
+  locationTimezone: document.querySelector("#location-timezone"),
+  locationStatus: document.querySelector("#location-status"),
   dnsForm: document.querySelector("#dns-form"),
   domainInput: document.querySelector("#domain-input"),
   dnsButton: document.querySelector("#dns-button"),
@@ -86,6 +92,36 @@ function setConnectionStatus(kind, message) {
   setText(elements.connectionValue, message);
 }
 
+function setLocationUnavailable(message = "Location data unavailable") {
+  setText(elements.locationCountry, "Not available");
+  setText(elements.locationRegion, "Not available");
+  setText(elements.locationCity, "Not available");
+  setText(elements.locationOrg, "Not available");
+  setText(elements.locationTimezone, "Not available");
+  setText(elements.locationStatus, message);
+}
+
+function displayValue(value) {
+  return typeof value === "string" && value.trim() ? value.trim() : "Not available";
+}
+
+function applyIpInformation(payload) {
+  setText(elements.locationCountry, displayValue(payload.country_name));
+  setText(elements.locationRegion, displayValue(payload.region));
+  setText(elements.locationCity, displayValue(payload.city));
+  setText(elements.locationOrg, displayValue(payload.org));
+  setText(elements.locationTimezone, displayValue(payload.timezone));
+
+  const hasLocation = [
+    elements.locationCountry,
+    elements.locationRegion,
+    elements.locationCity,
+    elements.locationOrg,
+    elements.locationTimezone,
+  ].some((element) => element.textContent !== "Not available");
+  setText(elements.locationStatus, hasLocation ? "IP-based approximate location" : "Location data unavailable");
+}
+
 function isValidIpAddress(value) {
   const address = String(value || "").trim();
   const octets = address.split(".");
@@ -121,6 +157,7 @@ async function checkPublicConnection() {
     setText(elements.latencyValue, "Not available");
     setText(elements.publicIp, "Unavailable");
     setText(elements.publicIpNote, "The browser reports that it is offline.");
+    setLocationUnavailable();
     lastIpLatency = "Not available";
     return;
   }
@@ -128,27 +165,49 @@ async function checkPublicConnection() {
   setConnectionStatus("checking", "🟡 Checking...");
   setText(elements.latencyValue, "Checking...");
   setText(elements.publicIp, "Checking...");
-  setText(elements.publicIpNote, "Retrieved over HTTPS from the public-IP service.");
+  setText(elements.publicIpNote, "Retrieved with approximate IP information over HTTPS.");
+  for (const element of [elements.locationCountry, elements.locationRegion, elements.locationCity, elements.locationOrg, elements.locationTimezone]) {
+    setText(element, "Checking...");
+  }
+  setText(elements.locationStatus, "Checking IP-based approximate location...");
 
   const startedAt = performance.now();
   try {
-    const response = await fetchWithTimeout(PUBLIC_IP_URL, { headers: { Accept: "application/json" } });
-    if (!response.ok) throw new Error("The public-IP service returned an error.");
-    const payload = await response.json();
-    if (!payload || typeof payload.ip !== "string" || !isValidIpAddress(payload.ip)) {
-      throw new Error("The public-IP response was not valid.");
+    const response = await fetchWithTimeout(IP_INFO_URL, { headers: { Accept: "application/json" } });
+    if (!response.ok) {
+      if (response.status === 429) throw new Error("The IP information service is rate limited.");
+      throw new Error("The IP information service returned an error.");
     }
+    const payload = await response.json();
+    if (payload && typeof payload === "object" && payload.error === true) {
+      const reason = typeof payload.reason === "string" ? payload.reason.toLowerCase() : "";
+      if (reason.includes("rate")) throw new Error("The IP information service is rate limited.");
+      throw new Error("The IP information service is unavailable.");
+    }
+    const expectedFields = ["ip", "city", "region", "country_name", "timezone", "org"];
+    if (!payload || typeof payload !== "object" || Array.isArray(payload) || !expectedFields.some((key) => Object.hasOwn(payload, key))) {
+      throw new Error("The IP information service returned an invalid response.");
+    }
+    const ipAddress = typeof payload.ip === "string" ? payload.ip.trim() : "";
+    if (ipAddress && !isValidIpAddress(ipAddress)) throw new Error("The IP information service returned an invalid response.");
     const elapsed = Math.max(0, Math.round(performance.now() - startedAt));
     lastIpLatency = `${elapsed} ms`;
-    setText(elements.publicIp, payload.ip.trim());
+    setText(elements.publicIp, ipAddress || "Unavailable");
+    applyIpInformation(payload);
     setText(elements.latencyValue, lastIpLatency);
     setConnectionStatus("connected", "🟢 Connected");
   } catch (error) {
     lastIpLatency = "Not available";
     setText(elements.latencyValue, "Not available");
     setText(elements.publicIp, "Unavailable");
-    const reason = error?.name === "AbortError" ? "The request timed out." : "The public-IP service could not be reached.";
+    let reason = "The IP information service could not be reached.";
+    if (error?.name === "AbortError") reason = "The IP information request timed out.";
+    else if (error instanceof SyntaxError) reason = "The IP information service returned an invalid response.";
+    else if (error?.message === "The IP information service is rate limited.") reason = error.message;
+    else if (error?.message === "The IP information service is unavailable.") reason = error.message;
+    else if (error?.message === "The IP information service returned an invalid response.") reason = error.message;
     setText(elements.publicIpNote, reason);
+    setLocationUnavailable();
     if (navigator.onLine === false) setConnectionStatus("offline", "🔴 Offline");
     else setConnectionStatus("checking", "Connection check unavailable");
   }
@@ -248,11 +307,12 @@ function createPlainTextReport() {
     "Public Network",
     `Public IP: ${value("#public-ip-value")}`,
     "",
-    "IP Information",
-    "Country: Not available",
-    "Region: Not available",
-    "City: Not available",
-    "Organization: Not available",
+    "IP-based approximate location",
+    `Country: ${value("#location-country")}`,
+    `Region / State: ${value("#location-region")}`,
+    `City: ${value("#location-city")}`,
+    `ISP / Organization: ${value("#location-org")}`,
+    `Timezone: ${value("#location-timezone")}`,
     "",
     "DNS Lookup",
     `Domain: ${value("#dns-domain")}`,
@@ -294,6 +354,9 @@ window.addEventListener("online", () => {
 window.addEventListener("offline", () => {
   setConnectionStatus("offline", "🔴 Offline");
   setText(elements.latencyValue, "Not available");
+  setText(elements.publicIp, "Unavailable");
+  setText(elements.publicIpNote, "The browser reports that it is offline.");
+  setLocationUnavailable();
 });
 
 refreshDashboard();

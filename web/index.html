@@ -73,15 +73,17 @@
           <p id="public-ip-note" class="card-note">Retrieved over HTTPS from the public-IP service.</p>
         </article>
 
-        <article class="card">
-          <div class="card-heading"><span class="icon-badge" aria-hidden="true">⌖</span><div><p class="eyebrow">APPROXIMATE PUBLIC-IP INFORMATION</p><h2>IP Information</h2></div></div>
-          <p class="section-intro">The selected public-IP service returns an address only. Location and organization are not requested from another service.</p>
+        <article class="card location-card">
+          <div class="card-heading"><span class="icon-badge" aria-hidden="true">⌖</span><div><p class="eyebrow">IP-BASED APPROXIMATE LOCATION</p><h2>Location</h2></div></div>
           <div class="field-list">
-            <div class="field-row"><span class="field-label">Country</span><span class="field-value">Not available</span></div>
-            <div class="field-row"><span class="field-label">Region</span><span class="field-value">Not available</span></div>
-            <div class="field-row"><span class="field-label">City</span><span class="field-value">Not available</span></div>
-            <div class="field-row"><span class="field-label">Organization</span><span class="field-value">Not available</span></div>
+            <div class="field-row"><span class="field-label">Country</span><span id="location-country" class="field-value">Checking...</span></div>
+            <div class="field-row"><span class="field-label">Region / State</span><span id="location-region" class="field-value">Checking...</span></div>
+            <div class="field-row"><span class="field-label">City</span><span id="location-city" class="field-value">Checking...</span></div>
+            <div class="field-row"><span class="field-label">ISP / Organization</span><span id="location-org" class="field-value">Checking...</span></div>
+            <div class="field-row"><span class="field-label">Timezone</span><span id="location-timezone" class="field-value">Checking...</span></div>
           </div>
+          <p id="location-status" class="card-note" role="status" aria-live="polite">Checking IP-based approximate location...</p>
+          <p class="card-note">Location is estimated from your public IP and may be inaccurate, especially when using VPNs, proxies, mobile networks, or corporate networks.</p>
         </article>
 
         <article id="tools" class="card dns-card">
@@ -106,7 +108,7 @@
           <div class="card-heading"><span class="icon-badge" aria-hidden="true">◇</span><div><p class="eyebrow">NO ACCOUNT REQUIRED</p><h2>Privacy</h2></div></div>
           <ul class="privacy-list">
             <li>NetScope Web runs in your browser; the static app has no backend and does not store your information.</li>
-            <li>The public-IP request goes to <a href="https://api.ipify.org/?format=json" target="_blank" rel="noopener noreferrer">ipify</a>. The service receives the request and can see its source IP; NetScope does not make claims about the service's logging.</li>
+            <li>Public IP and approximate location are requested from <a href="https://ipapi.co/json/" target="_blank" rel="noopener noreferrer">ipapi.co</a> over HTTPS. The service receives your request and can see its source IP; NetScope does not make claims about its logging.</li>
             <li>DNS Lookup sends the domain you enter to <a href="https://dns.google/resolve" target="_blank" rel="noopener noreferrer">Google Public DNS</a> over HTTPS. Its handling is governed by Google's service policies.</li>
             <li>Browser restrictions prevent access to your MAC address, gateway, configured DNS servers, DHCP settings, and full adapter details.</li>
             <li>No geolocation permission, precise location, analytics, or LAN scan is used.</li>

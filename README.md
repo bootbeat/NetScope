@@ -85,7 +85,7 @@ _Screenshot to be added._
 
 ## NetScope Web
 
-NetScope also includes a separate static browser application in [`web/`](web/). The web version runs in a browser with HTML, CSS, and JavaScript and does not replace or require the Windows desktop application. See [web/README.md](web/README.md) for features, privacy details, local preview, and GitHub Pages deployment. The hosted site will be available at <https://bootbeat.github.io/NetScope/> after deployment.
+NetScope also includes a separate static browser application in [`web/`](web/). The web version runs in a browser with HTML, CSS, and JavaScript, including approximate public-IP geolocation, and does not replace or require the Windows desktop application. See [web/README.md](web/README.md) for features, privacy details, local preview, and GitHub Pages deployment. The hosted site will be available at <https://bootbeat.github.io/NetScope/> after deployment.
 
 ## License
 

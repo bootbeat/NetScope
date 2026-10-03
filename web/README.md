@@ -7,12 +7,16 @@ NetScope Web is a no-build, browser-based companion to the Windows desktop appli
 - Reports the browser's online hint and checks HTTPS reachability with the public-IP request.
 - Measures approximate HTTP round-trip time for that HTTPS request. This is not ICMP ping latency.
 - Shows browser, exposed platform, screen resolution, language, time zone, and connection type only when the browser exposes a recognized type.
-- Displays public IP from ipify over HTTPS.
+- Displays the public IP and approximate IP-based location from ipapi.co over HTTPS.
 - Looks up A and AAAA records with Google Public DNS JSON DNS-over-HTTPS.
 - Copies the information currently displayed as plain text.
 - Responsive dark dashboard for desktop and mobile screens.
 
-The IP-information card shows `Not available` for country, region, city, and organization because the selected IP service returns the public address only. NetScope does not send that address to a second geolocation service.
+## IP geolocation
+
+NetScope requests `https://ipapi.co/json/` from the browser. The same response supplies the public IP and these approximate fields: country, region/state, city, ISP/organization, and timezone. NetScope does not request latitude or longitude or call a second location service.
+
+This is **IP-based approximate location**, not GPS or precise device location. It may be inaccurate, especially when using VPNs, proxies, mobile networks, or corporate networks. No browser location permission is requested. The browser sends the request to ipapi.co, which can see the request's source IP; NetScope does not make claims about the provider's logging or retention.
 
 ## What the browser can and cannot show
 
@@ -20,7 +24,7 @@ Browsers expose a limited set of browser and display values. The Network Informa
 
 ## Privacy
 
-The page runs in the browser and has no application backend, analytics, accounts, or local storage. The public-IP request is sent to ipify; like any network service, ipify receives the request and its source IP. The DNS Lookup feature sends the entered domain and query type to Google Public DNS over HTTPS. NetScope does not make claims about these providers' request retention; review their policies before use. No geolocation permission or precise location is requested, and no LAN scanning is performed.
+The page runs in the browser and has no application backend, analytics, accounts, or local storage. The IP and approximate-location request is sent to ipapi.co, which receives the request and its source IP. The DNS Lookup feature sends the entered domain and query type to Google Public DNS over HTTPS. NetScope does not make claims about these providers' request retention; review their policies before use. No geolocation permission or precise location is requested, and no LAN scanning is performed.
 
 Browser metadata remains in the page and in a Copy All report only if you choose to copy it. The app does not persist the report.
 
@@ -49,11 +53,11 @@ The app uses standard HTML, CSS Grid, Fetch, AbortController, URL, and Clipboard
 
 ## Limitations
 
-- External service or CORS failure can prevent public-IP or DNS lookup; the dashboard reports an unavailable result and remains usable.
+- External service, rate limiting, malformed responses, offline access, or CORS failure can prevent public-IP/location or DNS lookup; the dashboard reports unavailable fields and remains usable.
 - `navigator.onLine` is only the browser's connectivity hint. The HTTPS request is used as a reachability check; a blocked service may show the check as unavailable rather than proving the whole Internet is offline.
 - The latency number measures the public-IP HTTPS request, including request/response overhead, and is not a general route or ICMP measurement.
 - DNS Lookup uses Google Public DNS, not the visitor's configured resolver. It resolves public A and AAAA answers only.
-- Country, region, city, and organization are intentionally unavailable because no geolocation provider is contacted.
+- IP-based location is approximate and depends on the data returned by ipapi.co; individual fields may be unavailable or inaccurate.
 - The page cannot expose protected local adapter information to JavaScript.
 
 ## Future improvements
