@@ -37,12 +37,11 @@ Then open <http://localhost:8000>. Python is only used here as a convenient loca
 
 ## Deploy to GitHub Pages
 
-1. Push the repository to GitHub.
-2. In the repository, open **Settings → Pages**.
-3. Choose **Deploy from a branch**, select the branch containing this project and the repository root as the folder.
-4. Save. The app will be available under the repository's Pages URL in the `/web/` path.
+The web app lives in `web/`. The workflow at `.github/workflows/pages.yml` uploads only `./web` as the Pages artifact, so the deployed site has `index.html`, `styles.css`, `app.js`, and `assets/` at its root. The Windows desktop application is not included in the Pages artifact.
 
-The files use relative links and need no build command. If you want the site at the root of the Pages URL instead, publish the contents of `web/` as the Pages source (for example, from a dedicated deployment branch or workflow).
+In the repository's **Settings → Pages**, select **GitHub Actions** as the build and deployment source if it is not already selected. After the workflow is on GitHub, pushes to `main` deploy the site automatically. You can also start a deployment manually from the repository's **Actions** tab by selecting the Pages workflow and choosing **Run workflow**.
+
+The public site URL is <https://bootbeat.github.io/NetScope/>. The site is static and requires no build step or server-side runtime.
 
 ## Browser compatibility
 
