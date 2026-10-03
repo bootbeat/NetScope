@@ -1,0 +1,36 @@
+# Python environments and bytecode
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+
+# Test and coverage output
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Editors and local configuration
+.vscode/
+.idea/
+.env
+.env.*
+
+# Build and packaging output
+build/
+dist/
+*.spec
+
+# Logs, temporary files, and editor swap/backup files
+*.log
+*.tmp
+*.temp
+*.swp
+*.swo
+*.bak
+~$*
+
+# Generated screenshots and local network reports
+screenshots/
+netscope-report*.txt
+network-report*.txt
+NetScope Network Report*.txt
